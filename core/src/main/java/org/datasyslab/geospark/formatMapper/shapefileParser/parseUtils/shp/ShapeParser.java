@@ -61,10 +61,12 @@ public abstract class ShapeParser
      */
     protected CoordinateSequence readCoordinates(ShapeReader reader, int numPoints)
     {
-        CoordinateSequence coordinateSequence = geometryFactory.getCoordinateSequenceFactory().create(numPoints, 2);
+        CoordinateSequence coordinateSequence = geometryFactory.getCoordinateSequenceFactory().create(numPoints, 3);
         for (int i = 0; i < numPoints; ++i) {
+            // Might need to update this
             coordinateSequence.setOrdinate(i, 0, reader.readDouble());
             coordinateSequence.setOrdinate(i, 1, reader.readDouble());
+            coordinateSequence.setOrdinate(i, 2, reader.readDouble());
         }
         return coordinateSequence;
     }

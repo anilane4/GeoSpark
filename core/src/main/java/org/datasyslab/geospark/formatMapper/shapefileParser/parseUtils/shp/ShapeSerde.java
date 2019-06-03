@@ -104,7 +104,7 @@ public class ShapeSerde
         return parser.parseShape(reader);
     }
 
-    private static final int POINT_LENGTH = 1 + 2 * DOUBLE_LENGTH;
+    private static final int POINT_LENGTH = 1 + 3 * DOUBLE_LENGTH;
 
     private static byte[] serialize(Point point)
     {
@@ -112,6 +112,7 @@ public class ShapeSerde
         putType(buffer, ShapeType.POINT);
         buffer.putDouble(point.getX());
         buffer.putDouble(point.getY());
+        buffer.putDouble(point.getCoordinate().z);
 
         return buffer.array();
     }
@@ -133,13 +134,15 @@ public class ShapeSerde
             Point point = (Point) multiPoint.getGeometryN(i);
             buffer.putDouble(point.getX());
             buffer.putDouble(point.getY());
+            buffer.putDouble(point.getCoordinate().z);
         }
         return buffer.array();
     }
 
     private static int calculateBufferSize(MultiPoint multiPoint)
     {
-        return 1 + 4 * DOUBLE_LENGTH + INT_LENGTH + multiPoint.getNumPoints() * 2 * DOUBLE_LENGTH;
+        //System.out.println(1 + 4 * DOUBLE_LENGTH + INT_LENGTH + multiPoint.getNumPoints() * 2 * DOUBLE_LENGTH);
+        return 1 + 4 * DOUBLE_LENGTH + INT_LENGTH + multiPoint.getNumPoints() * 3 * DOUBLE_LENGTH;
     }
 
     private static byte[] serialize(LineString lineString)
@@ -155,7 +158,7 @@ public class ShapeSerde
 
     private static int calculateBufferSize(int numPoints, int numParts)
     {
-        return 1 + 4 * DOUBLE_LENGTH + INT_LENGTH + INT_LENGTH + numParts * INT_LENGTH + numPoints * 2 * DOUBLE_LENGTH;
+        return 1 + 4 * DOUBLE_LENGTH + INT_LENGTH + INT_LENGTH + numParts * INT_LENGTH + numPoints * 3 * DOUBLE_LENGTH;
     }
 
     private static void putHeader(ByteBuffer buffer, ShapeType type, int numPoints, int numParts)
@@ -255,6 +258,7 @@ public class ShapeSerde
             Point point = geometry.getPointN(i);
             buffer.putDouble(point.getX());
             buffer.putDouble(point.getY());
+            buffer.putDouble(point.getCoordinate().z);
         }
     }
 

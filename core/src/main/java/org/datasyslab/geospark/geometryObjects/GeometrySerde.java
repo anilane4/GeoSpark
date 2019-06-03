@@ -177,6 +177,7 @@ public class GeometrySerde
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Object readUserData(Kryo kryo, Input input)
     {
         Object userData = null;

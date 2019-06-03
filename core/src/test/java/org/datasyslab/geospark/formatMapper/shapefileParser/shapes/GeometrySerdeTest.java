@@ -50,31 +50,41 @@ public class GeometrySerdeTest
             throws Exception
     {
         test("POINT (1.3 4.5)");
+        test("POINT (1.3 4.5 55.3)");
         test("MULTIPOINT ((1 1), (1.3 4.5), (5.2 999))");
+        test("MULTIPOINT ((1 1 32.5), (1.3 4.5 234.4), (5.2 999 34156.7))");
         test("LINESTRING (1 1, 1.3 4.5, 5.2 999)");
+        test("LINESTRING (1 1 432.3, 1.3 4.5 654.2, 5.2 999 43.2)");
         test("MULTILINESTRING ((1 1, 1.3 4.5, 5.2 999), (0 0, 0 1))");
+        test("MULTILINESTRING ((1 1 5432.6, 1.3 4.5 5432.3, 5.2 999 543.2), (0 0 43.23, 0 1 43.32))");
         test("POLYGON ((0 0, 0 1, 1 1, 1 0.4, 0 0))");
+        test("POLYGON ((0 0 5423.2, 0 1 432.3, 1 1 432.2, 1 0.4 2345.6, 0 0 5423.2))");
         test("POLYGON ((0 0, 0 1, 1 1, 1 0.4, 0 0), (0.2 0.2, 0.5 0.2, 0.5 0.5, 0.2 0.5, 0.2 0.2))");
+        test("POLYGON ((0 0 43.3, 0 1 432.3, 1 1 43.3, 1 0.4 43.3, 0 0 43.3), (0.2 0.2 43.3, 0.5 0.2 43.3, 0.5 0.5 43.3, 0.2 0.5 43.3, 0.2 0.2 43.3))");
         test("MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0.4, 0 0)), " +
                 "((0 0, 0 1, 1 1, 1 0.4, 0 0), (0.2 0.2, 0.5 0.2, 0.5 0.5, 0.2 0.5, 0.2 0.2)))");
+        test("MULTIPOLYGON (((0 0 43.3, 0 1 43.3, 1 1 43.3, 1 0.4 43.3, 0 0 43.3)), " +
+                "((0 0 43.3, 0 1 43.3, 1 1 43.3, 1 0.4 43.3, 0 0 43.3), (0.2 0.2 43.3, 0.5 0.2 43.3, 0.5 0.5 43.3, 0.2 0.5 43.3, 0.2 0.2 43.3)))");
         test("GEOMETRYCOLLECTION (POINT(4 6), LINESTRING(4 6,7 10))");
+        test("GEOMETRYCOLLECTION (POINT(4 6 43.3), LINESTRING(4 6 543.3,7 10 433.2))");
     }
 
     private void test(String wkt)
             throws Exception
     {
         Geometry geometry = parseWkt(wkt);
-        Assert.assertEquals(geometry, serde(geometry));
+        assertGeometryEquals(geometry, serde(geometry));
+
 
         geometry.setUserData("This is a test");
-        Assert.assertEquals(geometry, serde(geometry));
+        assertGeometryEquals(geometry, serde(geometry));
 
         if (geometry instanceof GeometryCollection) {
             return;
         }
 
         Circle circle = new Circle(geometry, 1.2);
-        Assert.assertEquals(circle, serde(circle));
+        assertGeometryEquals(circle, serde(circle));
     }
 
     private Geometry parseWkt(String wkt)
@@ -98,5 +108,13 @@ public class GeometrySerdeTest
         kryo.writeObject(output, input);
         output.close();
         return bos.toByteArray();
+    }
+
+    private void assertGeometryEquals(Geometry expected, Geometry actual)
+    {
+        Assert.assertEquals(expected, actual);
+        for(int i = 0 ; i < expected.getCoordinates().length; i++) {
+            Assert.assertTrue(expected.getCoordinates()[i].equals3D(actual.getCoordinates()[i]));
+        }
     }
 }
